@@ -5,6 +5,7 @@ import invariant from 'invariant';
 
 import Edges from './Edges';
 import PanAndZoomContainer from './PanAndZoomContainer';
+import Minimap from './Minimap';
 
 import IntervalTree from '@flatten-js/interval-tree';
 
@@ -380,6 +381,7 @@ class Diagram extends React.PureComponent {
         onScroll={this.handleScroll}
       >
         {this.renderChildren(extremeX, extremeY, DEFAULT_ZOOM)}
+        <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} />
       </div>
     );
   }
