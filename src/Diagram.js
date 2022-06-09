@@ -253,14 +253,14 @@ class Diagram extends React.PureComponent {
     const { width, height } = this.containerRef.current
       ? this.containerRef.current.getBoundingClientRect()
       : DEFAULT_CONTAINER_RECT;
-    const viewport = getViewport(scroll.left, scroll.top, width, height, zoom);
-    const xOverscan = this.props.overscan?.x ?? width;
-    const yOverscan = this.props.overscan?.y ?? height;
+    this.viewport = getViewport(scroll.left, scroll.top, width, height, zoom);
+    const overscanWidth = this.props.overscan?.width ?? width;
+    const overscanHeight = this.props.overscan?.height ?? height;
     const viewportWithOverscanning = {
-      xMin: viewport.xMin - xOverscan,
-      xMax: viewport.xMax + xOverscan,
-      yMin: viewport.yMin - yOverscan,
-      yMax: viewport.yMax + yOverscan,
+      xMin: this.viewport.xMin - overscanWidth,
+      xMax: this.viewport.xMax + overscanWidth,
+      yMin: this.viewport.yMin - overscanHeight,
+      yMax: this.viewport.yMax + overscanHeight,
     };
 
     return getVisibleEdges(
@@ -369,6 +369,7 @@ class Diagram extends React.PureComponent {
           contentSpan={{ x: extremeX, y: extremeY }}
         >
           {({ zoom }) => this.renderChildren(extremeX, extremeY, zoom)}
+          <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} viewport={this.viewport} />
         </PanAndZoomContainer>
       );
     }
@@ -381,7 +382,7 @@ class Diagram extends React.PureComponent {
         onScroll={this.handleScroll}
       >
         {this.renderChildren(extremeX, extremeY, DEFAULT_ZOOM)}
-        <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} />
+        <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} viewport={this.viewport} />
       </div>
     );
   }
