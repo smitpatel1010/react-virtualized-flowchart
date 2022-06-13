@@ -248,6 +248,11 @@ class Diagram extends React.PureComponent {
     this.updateScroll(e.currentTarget);
   };
 
+  changeScrollWithMinimap = pos => {
+    this.updateScroll(pos);
+    this.containerRef.current.scrollTo(pos.scrollLeft, pos.scrollTop);
+  };
+
   getVisibleEdges(zoom) {
     const { scroll, version } = this.state;
     const { width, height } = this.containerRef.current
@@ -368,8 +373,16 @@ class Diagram extends React.PureComponent {
           scroll={this.state.scroll}
           contentSpan={{ x: extremeX, y: extremeY }}
         >
-          {({ zoom }) => this.renderChildren(extremeX, extremeY, zoom)}
-          <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} viewport={this.viewport} />
+          {/* <>
+            {({ zoom }) => this.renderChildren(extremeX, extremeY, zoom)}
+            <Minimap
+              vertices={this.props.vertices}
+              extremeX={extremeX}
+              extremeY={extremeY}
+              viewport={this.viewport}
+              changeScrollHandler={this.changeScrollWithMinimap}
+            />
+          </> */}
         </PanAndZoomContainer>
       );
     }
@@ -382,7 +395,13 @@ class Diagram extends React.PureComponent {
         onScroll={this.handleScroll}
       >
         {this.renderChildren(extremeX, extremeY, DEFAULT_ZOOM)}
-        <Minimap vertices={this.props.vertices} extremeX={extremeX} extremeY={extremeY} viewport={this.viewport} />
+        <Minimap
+          vertices={this.props.vertices}
+          extremeX={extremeX}
+          extremeY={extremeY}
+          viewport={this.viewport}
+          changeScrollHandler={this.changeScrollWithMinimap}
+        />
       </div>
     );
   }
