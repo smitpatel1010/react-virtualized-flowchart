@@ -401,6 +401,13 @@ class Diagram extends React.PureComponent {
           extremeY={extremeY}
           viewport={this.viewport}
           changeScrollHandler={this.changeScrollWithMinimap}
+          style={{
+            border: '2px solid black',
+            backgroundColor: 'rgba(20, 20, 20, 0.04)',
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+          }}
         />
       </div>
     );

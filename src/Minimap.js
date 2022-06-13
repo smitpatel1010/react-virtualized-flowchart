@@ -1,26 +1,58 @@
 import React from 'react';
 import { useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 const MINIMAP_WIDTH = 350;
 const MINIMAP_HEIGHT = 250;
 
-const Minimap = ({ vertices, extremeX, extremeY, viewport, changeScrollHandler }) => {
-  const scalingFactor = {
+const Minimap = ({ vertices, extremeX, extremeY, viewport, changeScrollHandler, style }) => {
+  const getScalingFactor = () => ({
     x: MINIMAP_WIDTH / extremeX,
     y: MINIMAP_HEIGHT / extremeY,
-  };
+  });
 
-  viewport.width = viewport.xMax - viewport.xMin;
-  viewport.height = viewport.yMax - viewport.yMin;
-
-  const minimapViewport = {
+  const getMinimapViewport = () => ({
     top: viewport.yMin * scalingFactor.y,
     left: viewport.xMin * scalingFactor.x,
     width: Math.min(viewport.width * scalingFactor.x, MINIMAP_WIDTH),
     height: Math.min(viewport.height * scalingFactor.y, MINIMAP_HEIGHT),
+  });
+
+  const getMinimapNodes = () => {
+    return vertices.map(vertex => ({
+      top: vertex.top * scalingFactor.y,
+      left: vertex.left * scalingFactor.x,
+      width: vertex.width * scalingFactor.x,
+      height: vertex.height * scalingFactor.y,
+    }));
+  };
+
+  const renderNodes = () => {
+    const minimapNodes = getMinimapNodes();
+    return minimapNodes.map(node => (
+      <div
+        key={node.id}
+        style={{
+          boxSizing: 'border-box',
+          position: 'absolute',
+          top: `${node.top}px`,
+          left: `${node.left}px`,
+          width: `${node.width}px`,
+          height: `${node.height}px`,
+          backgroundColor: 'gold',
+          border: '1px solid black',
+        }}
+      />
+    ));
   };
 
   const ref = useRef(null);
+  const scalingFactor = getScalingFactor();
+
+  viewport.width = viewport.xMax - viewport.xMin;
+  viewport.height = viewport.yMax - viewport.yMin;
+
+  const minimapViewport = getMinimapViewport();
 
   useEffect(() => {
     const element = ref.current;
@@ -39,39 +71,18 @@ const Minimap = ({ vertices, extremeX, extremeY, viewport, changeScrollHandler }
     };
   });
 
-  const nodes = vertices.map(vertex => {
-    return (
-      <div
-        key={vertex.id}
-        style={{
-          boxSizing: 'border-box',
-          position: 'absolute',
-          top: `${vertex.top * scalingFactor.y}px`,
-          left: `${vertex.left * scalingFactor.x}px`,
-          width: `${vertex.width * scalingFactor.x}px`,
-          height: `${vertex.height * scalingFactor.y}px`,
-          backgroundColor: 'gold',
-          border: '1px solid black',
-        }}
-      />
-    );
-  });
   return (
     <div
       className="minimap"
       ref={ref}
       style={{
         boxSizing: 'content-box',
-        border: '2px solid black',
-        backgroundColor: 'rgba(20, 20, 20, 0.04)',
         width: `${MINIMAP_WIDTH}px`,
         height: `${MINIMAP_HEIGHT}px`,
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        ...style,
       }}
     >
-      {nodes}
+      {renderNodes()}
       <div
         style={{
           position: 'absolute',
@@ -85,6 +96,37 @@ const Minimap = ({ vertices, extremeX, extremeY, viewport, changeScrollHandler }
       ></div>
     </div>
   );
+};
+
+Minimap.propTypes = {
+  vertices: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      left: PropTypes.number,
+      top: PropTypes.number,
+    })
+  ),
+  extremeX: PropTypes.number,
+  extremeY: PropTypes.number,
+  viewport: PropTypes.shape({
+    xMin: PropTypes.number,
+    xMax: PropTypes.number,
+    yMin: PropTypes.number,
+    yMax: PropTypes.number,
+  }),
+  changeScrollHandler: PropTypes.func,
+  style: PropTypes.object,
+};
+
+Minimap.defaultProps = {
+  vertices: [],
+  style: PropTypes.shape({
+    border: '2px solid black',
+    backgroundColor: 'rgba(20, 20, 20, 0.04)',
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+  }),
 };
 
 export default Minimap;
